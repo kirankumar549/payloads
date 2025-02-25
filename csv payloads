@@ -1,0 +1,97 @@
+1. CSV Injection (Formula Injection)
+CSV injection occurs when malicious formulas are embedded in the CSV file to execute commands or scripts in the software that processes the CSV (e.g., Excel, Google Sheets). This could lead to unintended consequences such as XSS, information leaks, or command execution.
+
+Payload Example:
+c
+Copy
+Name,Email,Website
+John Doe,john@example.com,=HYPERLINK("http://malicious-site.com","Click Here")
+Jane Smith,jane@example.com,=CMD|'/C calc'!A0
+Explanation:
+The first payload embeds a formula that, when processed by software like Excel, creates a clickable hyperlink that leads to a malicious site.
+The second payload injects a command that could, in certain environments, trigger the execution of a command (in this case, opening the calculator).
+2. XSS (Cross-Site Scripting) via CSV
+If the CSV data is used to populate a web page, an attacker might inject HTML or JavaScript into the CSV file. When the CSV file is loaded into a browser-based application or website, the malicious script could execute in the context of the user's session, leading to a cross-site scripting attack.
+
+Payload Example:
+csv
+Copy
+Name,Email,Comment
+John Doe,john@example.com,<script>alert('XSS Attack!');</script>
+Jane Smith,jane@example.com,<img src="x" onerror="alert('XSS');">
+Explanation:
+This payload embeds JavaScript in the Comment field. If the CSV data is displayed on a website without proper sanitization, it could trigger a script execution in the user's browser.
+3. Hyperlink Injection (Phishing)
+Attackers can insert URLs in the CSV file that look legitimate but actually point to a phishing site. When opened, these URLs may trick users into clicking and leading them to a fake website designed to steal credentials or deliver malware.
+
+Payload Example:
+c
+Copy
+Name,Email,Website
+John Doe,john@example.com,https://paypal.com.secure-login.com
+Jane Smith,jane@example.com,https://amazon.com.login-page.com
+Explanation:
+The URLs are crafted to look like legitimate sites (PayPal, Amazon), but they lead to phishing websites designed to steal sensitive information from users.
+4. File Inclusion via CSV (Malicious File Links)
+CSV files can be crafted to point to malicious files hosted on external servers. When processed, these files may trigger downloads or open malicious executables.
+
+Payload Example:
+csv
+Copy
+Name,Email,Website
+John Doe,john@example.com,http://malicious-site.com/malware.exe
+Jane Smith,jane@example.com,https://malicious-site.com/badfile.pdf
+Explanation:
+These are links to potentially dangerous files (e.g., an executable or PDF) hosted on a remote server. If the CSV is opened, users might unintentionally download or execute these files.
+5. HTTP Response Splitting via CSV
+HTTP Response Splitting exploits vulnerabilities in web servers that fail to sanitize input data before it's included in HTTP responses. By embedding newline characters or special headers in the CSV, attackers could influence server behavior, such as redirecting users or injecting malicious headers.
+
+Payload Example:
+csv
+Copy
+Name,Email,Website
+John Doe,john@example.com,HTTP/1.1 301 Moved Permanently\nLocation: http://malicious-site.com
+Jane Smith,jane@example.com,HTTP/1.1 200 OK\nContent-Type: text/html; charset=UTF-8
+Explanation:
+In this example, an attacker could craft a CSV that, when processed by a vulnerable web application, causes the server to interpret the CSV as an HTTP response, potentially redirecting users to malicious sites.
+6. Log Injection via CSV
+Attackers might use CSV files to inject log entries that could be logged by a vulnerable web application or server. This could lead to log poisoning or the triggering of arbitrary actions on the server-side.
+
+Payload Example:
+csv
+Copy
+Name,Email,Comment
+John Doe,john@example.com,'; DROP TABLE users; --
+Jane Smith,jane@example.com,SELECT * FROM credit_cards;
+Explanation:
+The payloads here mimic SQL injection-style commands. If the CSV is improperly processed and logged by an application, it could lead to logging of harmful SQL queries or commands.
+7. Redirection via CSV File (Open Redirect)
+An attacker can embed a link in a CSV file that causes a redirection to a malicious website when the file is processed.
+
+Payload Example:
+cs
+Copy
+Name,Email,Website
+John Doe,john@example.com,http://malicious-site.com?redirect=https://victim-site.com
+Explanation:
+This type of payload can lead to an open redirect. When the file is opened or processed, it could redirect the user to a potentially malicious site.
+8. Buffer Overflow via CSV
+A CSV file can be crafted to send a large amount of data or a specific type of payload that causes a buffer overflow in vulnerable software. This could lead to arbitrary code execution on the machine that processes the file.
+
+Payload Example:
+c
+Copy
+Name,Email,Comment
+John Doe,john@example.com,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...
+Explanation:
+The payload consists of a large amount of repeating characters designed to overflow a buffer. If the software processing the CSV has a vulnerability, it could lead to memory corruption or arbitrary code execution.
+9. CSV File with Malicious Macros
+Some spreadsheet programs (like Excel) allow macros to be embedded within the document. While not typically a standard part of CSV files, CSVs that are later converted into other formats like .xls or .xlsx may carry over these macros.
+
+Payload Example (in .xlsx converted from .csv):
+csv
+Copy
+Name,Email,Website
+John Doe,john@example.com,=cmd|'/C calc'!A0
+Explanation:
+If the CSV file is opened in Excel and saved as an .xlsx file, this could create a macro that executes a command when the file is opened.
