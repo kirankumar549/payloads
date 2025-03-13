@@ -1,0 +1,58 @@
+Here is a list of common MIME types (Content-Types) for various file formats:
+
+1. Text Files
+File Type	MIME Type
+Plain Text	text/plain
+HTML	text/html
+CSS	text/css
+JavaScript	text/javascript (or application/javascript)
+XML	application/xml or text/xml
+JSON	application/json
+CSV	text/csv
+2. Image Files
+File Type	MIME Type
+JPEG	image/jpeg
+PNG	image/png
+GIF	image/gif
+BMP	image/bmp
+SVG	image/svg+xml
+WebP	image/webp
+ICO (Favicon)	image/vnd.microsoft.icon
+3. Audio Files
+File Type	MIME Type
+MP3	audio/mpeg
+WAV	audio/wav
+OGG	audio/ogg
+AAC	audio/aac
+MIDI	audio/midi
+4. Video Files
+File Type	MIME Type
+MP4	video/mp4
+WebM	video/webm
+Ogg Video	video/ogg
+AVI	video/x-msvideo
+MPEG	video/mpeg
+5. Application Files (Binary, Executables, Archives)
+File Type	MIME Type
+PDF	application/pdf
+ZIP	application/zip
+GZIP	application/gzip
+RAR	application/vnd.rar
+7-Zip	application/x-7z-compressed
+EXE	application/x-msdownload
+MS Word (DOC)	application/msword
+MS Excel (XLS)	application/vnd.ms-excel
+MS PowerPoint (PPT)	application/vnd.ms-powerpoint
+JSON	application/json
+XML	application/xml
+6. Web-related Files
+File Type	MIME Type
+PHP	application/x-httpd-php
+ASP	application/x-asp
+JSP	application/x-jsp
+7. Font Files
+File Type	MIME Type
+TrueType Font (TTF)	font/ttf
+OpenType Font (OTF)	font/otf
+Web Open Font Format (WOFF)	font/woff
+Web Open Font Format 2 (WOFF2)	font/woff2
