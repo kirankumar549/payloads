@@ -1,0 +1,53 @@
+Vulnerability Name
+Exposed SSRS Login Interface (Publicly Accessible Authentication Portal)
+
+Description
+When the SSRS login page (e.g., /Reports/Pages/Folder.aspx or /ReportServer) is exposed to the public internet, it allows unauthenticated attackers to interact with the authentication interface. Even if credentials are required, this exposure creates several risks:
+
+Brute-force or credential stuffing attacks using leaked credentials.
+
+Enumeration of usernames based on error responses.
+
+Information leakage (e.g., software version in error messages).
+
+Target for bots or malware scanning the internet for known vulnerabilities.
+
+Public availability of this login interface increases the attack surface for unauthorized access to potentially sensitive business reports and underlying infrastructure.
+
+Impact
+Risk	Description
+Unauthorized Access	If weak or default credentials are used, attackers may gain access to sensitive reports.
+Data Breach	Sensitive business intelligence (BI) data may be exposed.
+Regulatory Non-Compliance	Violates data protection regulations like GDPR, HIPAA, PCI-DSS.
+Brute Force Attack	Automated tools can be used to guess credentials.
+Reconnaissance	Helps attackers understand internal systems and software versions.
+
+Remediation
+✅ Restrict Network Access
+Only allow access to the SSRS portal from trusted internal IP addresses or VPN users.
+
+Use a reverse proxy or firewall to block public internet access to the login page.
+
+✅ Implement Strong Authentication
+Use Windows Authentication or integrate with Active Directory.
+
+Enforce strong password policies and multi-factor authentication (MFA).
+
+✅ Prevent Brute-force Attacks
+Enable account lockouts or rate-limiting after failed login attempts.
+
+Use Web Application Firewalls (WAF) with brute-force protection rules.
+
+✅ Disable or Hide Unused Endpoints
+Disable or remove default report folders that aren't in use.
+
+Remove test/sample reports and endpoints if not necessary.
+
+✅ Secure Communication
+Ensure the portal uses HTTPS only, with a valid certificate.
+
+✅ Regularly Patch and Update
+Keep SSRS and SQL Server components fully patched to mitigate known vulnerabilities.
+
+✅ Monitor and Audit Logs
+Enable detailed auditing and review logs for signs of reconnaissance or login attempts.
