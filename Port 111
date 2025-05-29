@@ -1,0 +1,76 @@
+🛠️ Step-by-Step: Pentesting Port 111 Using nmap
+🔍 1. Basic Scan for Open Port
+Check that port 111 is open and identify the service:
+
+bash
+Copy
+Edit
+nmap -sV -p 111 <target_ip>
+Expected output:
+
+bash
+Copy
+Edit
+111/tcp open  rpcbind  2-4 (RPC #100000)
+🔧 2. Use NSE Script: rpcinfo
+This mimics rpcinfo -p to enumerate all registered RPC services:
+
+bash
+Copy
+Edit
+nmap -sV -sT -p 111 --script=rpcinfo <target_ip>
+Example output:
+
+bash
+Copy
+Edit
+PORT    STATE SERVICE
+111/tcp open  rpcbind
+| rpcinfo:
+|   program version    port/proto  service
+|   100000  2,3,4       111/tcp    rpcbind
+|   100003  2,3         2049/tcp   nfs
+|   100005  1,2,3       32771/tcp  mountd
+🛡️ If you see nfs, mountd, rquotad, or similar services: they must be reviewed for misconfigurations.
+
+🗄️ 3. Scan for NFS Exports (if NFS is listed)
+If NFS is running (usually on port 2049), list exported file systems:
+
+bash
+Copy
+Edit
+nmap -p 111,2049 --script=nfs-showmount <target_ip>
+Example:
+
+wasm
+Copy
+Edit
+| nfs-showmount:
+|   /export/data Everyone
+🔥 Danger: If "Everyone" can mount a share, it's a serious misconfiguration.
+
+💣 4. Check for Readable Shares (Mount Attempt)
+bash
+Copy
+Edit
+showmount -e <target_ip>
+Then try to mount it (on a Linux box):
+
+bash
+Copy
+Edit
+mkdir /mnt/test
+mount -t nfs <target_ip>:/export/data /mnt/test
+ls /mnt/test
+❌ If a share mounts without authentication, you have a major security issue.
+
+🛑 5. Check for Vulnerable Services (Old RPC Vulns)
+You can extend nmap with:
+
+bash
+Copy
+Edit
+nmap -sV -p 111 --script=rpcinfo,rpc-grind <target_ip>
+rpc-grind: Tries to identify unlisted or hidden services.
+
+Look for services running on high ports like 32771 or 32768 — common with mountd, statd, rquotad.
