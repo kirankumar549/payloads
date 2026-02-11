@@ -1,0 +1,148 @@
+1️⃣ First question: What does “analyze a hash” mean?
+
+You can analyze a hash in four different ways:
+
+Goal	What you can learn
+Identify hash type	SHA‑256, MD5, bcrypt, etc
+Check salting	Likely salted or not
+Check randomness / entropy	Bit distribution, entropy
+Attempt recovery (cracking)	Only if authorized
+
+⚠️ You cannot reverse a secure hash. Analysis ≠ cracking.
+
+2️⃣ STEP‑BY‑STEP HASH ANALYSIS IN KALI
+
+Assume your hash is in hash.txt.
+
+STEP 1 — Identify hash type
+Tool: hashid (Kali default)
+hashid hash.txt
+
+
+Output example:
+
+Analyzing '5e884898da...'
+[+] SHA-256
+[+] SHA-256(HMAC)
+
+
+🔹 Tells you:
+
+Possible algorithm(s)
+
+If it might be salted (bcrypt, Argon2, etc.)
+
+Tool: hash-identifier
+hash-identifier
+
+
+Paste the hash → interactive detection.
+
+STEP 2 — Check if the hash format shows salting
+
+Look at the hash structure:
+
+Format	Meaning
+$2b$12$...	bcrypt (salted)
+$argon2id$...	Argon2 (salted)
+pbkdf2_sha256$...	PBKDF2 (salted)
+64 hex chars	SHA‑256 (salt unknown / none)
+
+👉 Raw SHA‑256 has no visible salt.
+
+STEP 3 — Check duplicates (salting inference)
+Tool: sort + uniq
+sort hashes.txt | uniq -d
+
+Result	Meaning
+No output	Likely salted or unique inputs
+Duplicates	Very likely unsalted
+
+STEP 4 — Analyze randomness / entropy (important)
+Tool: ent
+xxd -r -p hash.txt > hash.bin
+ent hash.bin
+
+
+Key values:
+
+Entropy ≈ 8.0 bits/byte → excellent
+
+Serial correlation ≈ 0
+
+Chi‑square reasonable
+
+🔹 This checks statistical quality, not salting.
+
+STEP 5 — Deep statistical testing (optional)
+Tool: dieharder
+
+⚠️ Only for large datasets, not single hashes.
+
+dieharder -g 201 -f hashes.bin
+
+
+Interpretation:
+
+Some FAILs are normal for hashes
+
+This does not determine salting
+
+STEP 6 — Check if it’s crackable (authorized testing)
+Tool: john
+john --format=raw-sha256 hash.txt
+
+Tool: hashcat
+hashcat -m 1400 hash.txt wordlist.txt
+
+
+If cracking fails easily → probably salted or strong password.
+
+3️⃣ IMPORTANT TRUTH (Most people get this wrong)
+
+✔ You cannot prove a hash is salted from a single value
+✔ Random-looking ≠ salted
+✔ Entropy ≠ salting
+✔ dieharder ≠ salt detector
+
+Salting is about input uniqueness, not output randomness.
+
+4️⃣ RECOMMENDED KALI TOOLS SUMMARY
+Tool	Purpose
+hashid	Identify hash algorithm
+hash-identifier	Interactive ID
+ent	Entropy / randomness
+sort + uniq	Detect duplicates
+john	Hash analysis / cracking
+hashcat	Advanced cracking
+xxd	Hex → binary
+5️⃣ Correct professional workflow (short)
+1. Identify hash → hashid
+2. Check format → manual
+3. Check duplicates → uniq
+4. Check entropy → ent
+5. Optional cracking → john/hashcat
+
+✅ FINAL ANSWER
+
+To analyze a hash in Kali:
+
+Identify it
+
+Check format
+
+Check duplicates
+
+Measure entropy
+
+Understand limitations
+
+If you want, tell me:
+
+Is it password hash or token/API key?
+
+Single hash or many?
+
+For learning or security audit?
+
+I’ll tailor the exact commands for your case.
