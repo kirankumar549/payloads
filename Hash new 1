@@ -1,0 +1,29 @@
+You can analyze unknown hashes solely for collision detection and type identification using these exact Kali Linux tools and commands—no original PII needed.��Hash Type IdentificationTool: hashid (pre-installed on Kali Linux, identifies 220+ hash types by format/length).�# Single hash
+hashid 5d41402abc4b2a76b9719d911017c592
+
+# From file (hashes.txt, one per line)
+hashid -m hashes.txtAlternative CLI: haiti (Ruby gem, 641+ types).�gem install haiti-hash
+haiti 5d41402abc4b2a76b9719d911017c592Collision DetectionTool: Standard Unix sort + uniq (detects duplicate hashes indicating collisions).�# Save hashes to file: hashes.txt (one per line, lowercase hex for consistency)
+# Count collisions
+sort -u hashes.txt | wc -l     # unique count
+sort hashes.txt | uniq -c | sort -nr | head -10  # collisions first (count >1)If any line shows    2 abc123... → collision between 2 records.�Entropy / Randomness CheckTool: ent (Kali Linux, statistical test for randomness).�# Install if needed: sudo apt install ent
+ent hashes.txt  # Entropy score per file; aim for ~7.9-8.0 bits/byte for good hashesPer-hash:# Binary version for better stats
+xxd -r -p hash_single.txt | entAdditional Security ChecksWeak algorithm rainbow look
+
+
+
+
+
+
+Hash Type IdentificationTool: hashid (pre-installed on Kali Linux, identifies 220+ hash types by format/length).�# Single hash
+hashid 5d41402abc4b2a76b9719d911017c592
+
+# From file (hashes.txt, one per line)
+hashid -m hashes.txtAlternative CLI: haiti (Ruby gem, 641+ types).�gem install haiti-hash
+haiti 5d41402abc4b2a76b9719d911017c592Collision DetectionTool: Standard Unix sort + uniq (detects duplicate hashes indicating collisions).�# Save hashes to file: hashes.txt (one per line, lowercase hex for consistency)
+# Count collisions
+sort -u hashes.txt | wc -l     # unique count
+sort hashes.txt | uniq -c | sort -nr | head -10  # collisions first (count >1)If any line shows    2 abc123... → collision between 2 records.�Entropy / Randomness CheckTool: ent (Kali Linux, statistical test for randomness).�# Install if needed: sudo apt install ent
+ent hashes.txt  # Entropy score per file; aim for ~7.9-8.0 bits/byte for good hashesPer-hash:# Binary version for better stats
+xxd -r -p hash_single.txt | entAdditional Security ChecksWeak algorithm rainbow lookup (if identified as MD5/SHA1):# hashcat (Kali) example-mode lookup against known tables
+hashcat -m 0 -a 0 md5hashes.txt /usr/share/wordlists/rockyou.txt --potfile-disable
