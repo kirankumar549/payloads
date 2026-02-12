@@ -1,0 +1,57 @@
+1. identify hash value using 
+
+Tools 
+
+hashid hash.txt
+
+hash-identifier
+
+a) comparer cmp -l token1.txt
+
+2. Check duplicates (salting inference)
+
+cmd
+
+sort hashes.txt | uniq -d
+
+3. Analyze randomness / entropy
+
+CMD
+
+xxd -r -p hash.txt > hash.bin
+
+ent hash.bin
+
+Key values:
+
+Entropy ≈ 8.0 bits/byte → excellent
+
+Serial correlation ≈ 0
+
+Chi‑square reasonable
+
+This checks statistical quality, not salting.
+
+
+4. Deep statistical testing (optional)
+
+Tool: dieharder
+
+dieharder -g 201 -f hashes.bin
+
+
+
+5. Check if it’s crackable (authorized testing)
+
+Tool: john
+john --format=raw-sha256 hash.txt
+
+Tool: hashcat
+hashcat -m 1400 hash.txt wordlist.txt
+
+
+
+6. Find Collision 
+
+sort hashes.txt | uniq -c | sort -nr | head 
+
