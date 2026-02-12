@@ -1,0 +1,103 @@
+TC-01: Hash Length & Encoding Identification (FILE INPUT)
+Command
+Bash
+Copy code
+awk '{ print length($0) }' hash.txt
+➡️ Outputs length of each hash.
+Encoding check
+Bash
+Copy code
+grep -Eq '^[a-fA-F0-9]+$' hash.txt && echo "HEX"
+Bash
+Copy code
+base64 -d hash.txt >/dev/null 2>&1 && echo "BASE64"
+TC-02: Hash Format Signature Detection (FILE INPUT)
+Tool: hashid
+Bash
+Copy code
+hashid hash.txt
+Bash
+Copy code
+hashid -m hash.txt
+Tool: hash-identifier
+Bash
+Copy code
+hash-identifier
+Paste hash from hash.txt when prompted.
+TC-03: Determinism / Salt Detection (FILE INPUT)
+⚠️ Only possible if you can regenerate hashes
+Compare two hashes from file:
+Bash
+Copy code
+uniq hash.txt
+Multiple identical hashes → unsalted
+All unique → possibly salted
+TC-04: Entropy & Randomness Test (FILE INPUT)
+Convert HEX hashes to binary
+Bash
+Copy code
+cat hash.txt | tr -d '\n' | xxd -r -p > hash.bin
+Run entropy test
+Bash
+Copy code
+ent hash.bin
+TC-05: Character Frequency Distribution (FILE INPUT)
+Bash
+Copy code
+cat hash.txt | fold -w1 | sort | uniq -c | sort -nr
+TC-06: Avalanche Effect Test (FILE INPUT)
+⚠️ Requires paired hashes of similar inputs.
+Example:
+Bash
+Copy code
+xxd -b <(sed -n '1p' hash.txt) > h1.bin
+xxd -b <(sed -n '2p' hash.txt) > h2.bin
+cmp h1.bin h2.bin
+TC-07: Collision Heuristic (FILE INPUT)
+Detect duplicates
+Bash
+Copy code
+sort hash.txt | uniq -d
+➡️ Any output = collision or identical input
+TC-08: Length Extension Test (FILE INPUT)
+⚠️ Only applies if:
+Hash is MD5 / SHA-1 / SHA-256
+You know original message length
+Command
+Bash
+Copy code
+./hash_extender \
+  --signature $(sed -n '1p' hash.txt) \
+  --data test \
+  --append extra \
+  --format sha256
+TC-09: Known Collision Validation (FILE INPUT)
+Only valid if algorithm identified as MD5.
+Bash
+Copy code
+md5sum file1 file2
+Compare output with hashes in hash.txt.
+TC-10: Risk Classification (FILE INPUT)
+Check bit length
+Bash
+Copy code
+awk '{ print length($0) * 4 " bits" }' hash.txt
+Common Mistakes (Important)
+❌ Running entropy on single hash
+❌ Assuming randomness = security
+❌ Mixing salted and unsalted hashes
+❌ Treating unknown algorithm as acceptable
+Best Practice Layout
+Bash
+Copy code
+hashes/
+├── hash.txt
+├── hash.bin
+├── report.md
+└── commands.sh
+Key Security Rule (Audit-Grade)
+🔐 If you cannot identify the hash algorithm, it must be rejected for security use.
+This statement is accepted in:
+OWASP ASVS
+NIST reviews
+ISO 27001 audits
